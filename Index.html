@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Acceso Restringido</title>
+<style>
+  body{
+    background:black;
+    color:#0f920f; /* verde oscuro hacker */
+    font-family: "Courier New", monospace;
+    margin:0;
+    padding:0;
+    text-shadow:0 0 4px #0f920f;
+  }
+
+  .container{
+    width:90%;
+    max-width:700px;
+    margin:70px auto;
+    text-align:center;
+  }
+
+  input{
+    width:80%;
+    padding:10px;
+    background:black;
+    border:2px solid #0f920f;
+    color:#0f920f;
+    font-size:1.1em;
+    text-shadow:0 0 4px #0f920f;
+    outline:none;
+  }
+
+  input:focus{
+    box-shadow:0 0 10px #0f920f;
+  }
+
+  button{
+    margin-top:15px;
+    padding:10px 20px;
+    background:black;
+    border:2px solid #0f920f;
+    color:#0f920f;
+    font-size:1.1em;
+    cursor:pointer;
+    text-shadow:0 0 4px #0f920f;
+  }
+
+  button:hover{
+    background:#0f920f22;
+  }
+
+  #resultSection{
+    margin-top:40px;
+    white-space:pre-wrap;
+    font-size:1.05em;
+  }
+
+  .hidden{
+    display:none;
+  }
+
+  /* Caja del temporizador */
+  #timerBox{
+    margin-top:20px;
+    font-size:2em;
+    letter-spacing:3px;
+  }
+
+  /* Efecto glitch suave */
+  @keyframes glitch {
+    0% { text-shadow: 0 0 4px #0f920f; }
+    50% { text-shadow: 0 0 12px #0f920f; }
+    100% { text-shadow: 0 0 4px #0f920f; }
+  }
+
+  .glitch{
+    animation: glitch 1.5s infinite;
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+  
+  <h1 class="glitch">Escribe el código</h1>
+
+  <input id="codeInput" type="text" autocomplete="off" placeholder="•••••••••••••••">
+  <br>
+  <button id="submitBtn">ENVIAR</button>
+  <br><br>
+  <button id="hintBtn">PISTA</button>
+
+  <div id="timerBox" class="hidden">
+    <div id="timer" class="glitch">10:00:00</div>
+  </div>
+
+  <div id="resultSection" aria-hidden="true"></div>
+  <button id="backBtn" class="hidden">VOLVER</button>
+
+</div>
+
+<script>
+  const codeInput = document.getElementById('codeInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const resultSection = document.getElementById('resultSection');
+  const backBtn = document.getElementById('backBtn');
+
+  let timerInterval = null;
+  const INFORME_TEXT = `
+Caso 013-25 — Informe Preliminar...
+
+El 13 de enero del 2025 se reportaron un total de 6 desaparecidos a las 4:34 p.m. Hora Guatemala. 
+La mayoría fue vista por última vez abordando una camioneta oscura según testigos que no sospecharon nada hasta conocer la noticia.
+
+Seis días después, se avistó al sujeto “Aaron Rodriguez” (AR7) siendo expulsado del mismo vehículo. 
+El FBI intentó rastrear al dueño, pero no obtuvo ningún nombre o ubicación. 
+El sujeto se negó a hablar. Un examen médico reveló que fue anestesiado con un gas químico potente.
+
+Dos meses más tarde, se descubrió que ahora poseía una cantidad inusual de dinero. 
+Las investigaciones no permitieron levantar una orden, pero policías interesados en el caso registraron los hogares de los desaparecidos. 
+
+En todas las casas hallaron tarjetas con tres símbolos sin significado registrado y un número telefónico fuera de servicio.
+
+En una sola casa se encontró una tarjeta distinta, sin número telefónico, solo un código:
+“007 AR”.
+`;
+
+  const CALAMAR_TEXT = `
+El tiempo no se puede acabar.  
+La vida sí.
+
+El código ha sido descubierto.  
+El calamar ya tiene una alarma que en 10 horas sonará...
+
+Tu oportunidad para volverte millonario empieza ahora.
+
+O para morir en el intento.
+`;
+
+  function normalizeCode(v){
+    return v.trim().toUpperCase();
+  }
+
+  function showResult(text){
+    resultSection.textContent = text;
+    resultSection.classList.remove('hidden');
+    resultSection.setAttribute('aria-hidden','false');
+    backBtn.classList.remove('hidden');
+    codeInput.value = '';
+  }
+
+  function goBack(){
+      resultSection.classList.add('hidden');
+      resultSection.setAttribute('aria-hidden','true');
+      const timerBox = document.getElementById('timerBox');
+      timerBox.classList.add('hidden');
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = "10:00:00";
+      codeInput.focus();
+  }
+
+  function startCountdown(){
+    const timerBox = document.getElementById('timerBox');
+    timerBox.classList.remove('hidden');
+
+    let totalSeconds = 10 * 60 * 60; // 10 horas
+
+    timerInterval = setInterval(()=>{
+      totalSeconds--;
+
+      const h = String(Math.floor(totalSeconds/3600)).padStart(2,'0');
+      const m = String(Math.floor((totalSeconds%3600)/60)).padStart(2,'0');
+      const s = String(totalSeconds%60).padStart(2,'0');
+
+      document.getElementById('timer').textContent = `${h}:${m}:${s}`;
+
+      if(totalSeconds <= 0){
+        clearInterval(timerInterval);
+        document.getElementById('timer').textContent = "00:00:00";
+      }
+    },1000);
+  }
+
+  function showCalamar(){
+    showResult(CALAMAR_TEXT);
+    setTimeout(startCountdown, 600);
+  }
+
+  submitBtn.addEventListener('click', ()=>{
+    const val = normalizeCode(codeInput.value);
+    if(!val){
+      codeInput.style.transition = 'transform 0.08s';
+      codeInput.style.transform = 'translateX(-6px)';
+      setTimeout(()=>codeInput.style.transform='translateX(6px)',80);
+      setTimeout(()=>codeInput.style.transform='translateX(0)',160);
+      return;
+    }
+
+    if(val === 'INFORME PRELIMINAR'){
+      showResult(INFORME_TEXT);
+      return;
+    }
+
+    if(val === '007 AR' || val === '007AR'){
+      showCalamar();
+      return;
+    }
+
+    showResult('Código inválido. Nada más que sombras y preguntas.\n\n(Vuelve y prueba otra vez.)');
+  });
+
+  backBtn.addEventListener('click', goBack);
+
+  codeInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') submitBtn.click();
+  });
+
+  hintBtn.addEventListener('click', ()=>{
+    alert('Pista: El informe tiene nombre oficial. Otra pista encontrada en las casas: 007 AR.');
+  });
+
+  window.addEventListener('load', ()=>{ codeInput.focus(); });
+</script>
+
+</body>
+</html>
